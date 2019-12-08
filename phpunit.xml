@@ -1,0 +1,5 @@
+<testsuites>
+  <testsuite name="Rutek\Dataclass">
+    <directory>tests/</directory>
+  </testsuite>
+</testsuites>
