@@ -89,7 +89,7 @@ $object = $transformer->to(MyClass::class, json_decode($data, true));
 
 ### More examples
 
-Please check out [docs/ directory](docs/) for more exxamples.
+Please check out [docs/ directory](docs/) for more examples.
 
 ## Installation
 
