@@ -91,6 +91,14 @@ $object = $transformer->to(MyClass::class, json_decode($data, true));
 
 Please check out [docs/ directory](docs/) for more exxamples.
 
+## Installation
+
+As simple as
+
+```
+composer install rutek/dataclass
+```
+
 ## Supported type hints
 
 **Attention:** please be aware of using `array` type hints. They cannot be used (will throw `UnsupportedException` if detected) as PHP does not provide way to type-hint items of array. Please check *Collections* section below for further information.
