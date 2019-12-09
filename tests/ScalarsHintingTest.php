@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace Rutek\DataclassTest;
 
 use PHPUnit\Framework\TestCase;
-use Rutek\Dataclass\Transform;
 use Rutek\Dataclass\TransformException;
 use Rutek\DataclassTest\Examples\ScalarsHinting;
 use Rutek\DataclassTest\Traits\GetErrorTrait;
+
+use function Rutek\Dataclass\transform;
 
 class ScalarsHintingTest extends TestCase
 {
@@ -16,9 +17,8 @@ class ScalarsHintingTest extends TestCase
 
     public function testCreationWithNullsAllowed()
     {
-        $transformer = new Transform();
         /** @var TestClass $obj */
-        $obj = $transformer->to(ScalarsHinting::class, [
+        $obj = transform(ScalarsHinting::class, [
             'number' => 1,
             'numberAllowNull' => null,
             'text' => 'Some text',
@@ -49,9 +49,8 @@ class ScalarsHintingTest extends TestCase
 
     public function testCreationWithOptionalFields()
     {
-        $transformer = new Transform();
         /** @var TestClass $obj */
-        $obj = $transformer->to(ScalarsHinting::class, [
+        $obj = transform(ScalarsHinting::class, [
             'number' => 1,
             'optionalNumber' => 2,
             'numberAllowNull' => 3,
@@ -101,8 +100,7 @@ class ScalarsHintingTest extends TestCase
 
         $thrown = false;
         try {
-            $transformer = new Transform();
-            $transformer->to(ScalarsHinting::class, []);
+            transform(ScalarsHinting::class, []);
         } catch (TransformException $e) {
             $thrown = true;
             $this->assertEquals($expected, $e);

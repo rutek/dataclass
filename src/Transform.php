@@ -53,7 +53,7 @@ class Transform
                     // Declared property without default value does not exist in data
                     $errors[] = $this->to(FieldError::class, [
                         'field' => ($fieldName !== null ? $fieldName . '.' : '') . $name,
-                        'details' => 'Field must have value'
+                        'reason' => 'Field must have value'
                     ]);
                 } else {
                     // Declared property does not exists in data but has default, use it
@@ -63,7 +63,11 @@ class Transform
             }
 
             try {
-                $finalData[$name] = $this->checkType($property->getType(), $data[$name], $name);
+                $finalData[$name] = $this->checkType(
+                    $property->getType(),
+                    $data[$name],
+                    ($fieldName !== null ? $fieldName . '.' : '') . $name
+                );
             } catch (FieldError $e) {
                 $errors[] = $e;
             } catch (TransformException $e) {
@@ -97,29 +101,29 @@ class Transform
             case 'int':
                 // Integer validation
                 if (!is_int($data)) {
-                    throw $this->to(FieldError::class, ['field' => $fieldName, 'details' => 'Field must be integer']);
+                    throw $this->to(FieldError::class, ['field' => $fieldName, 'reason' => 'Field must be integer']);
                 }
                 break;
             case 'string':
                 // String validation
                 if (!is_string($data)) {
-                    throw $this->to(FieldError::class, ['field' => $fieldName, 'details' => 'Field must be string']);
+                    throw $this->to(FieldError::class, ['field' => $fieldName, 'reason' => 'Field must be string']);
                 }
                 break;
             case 'float':
                 // Float validation
                 if (!is_float($data)) {
-                    throw $this->to(FieldError::class, ['field' => $fieldName, 'details' => 'Field must be float']);
+                    throw $this->to(FieldError::class, ['field' => $fieldName, 'reason' => 'Field must be float']);
                 }
                 break;
             case 'bool':
                 // boolean validation
                 if (!is_bool($data)) {
-                    throw $this->to(FieldError::class, ['field' => $fieldName, 'details' => 'Field must be boolean']);
+                    throw $this->to(FieldError::class, ['field' => $fieldName, 'reason' => 'Field must be boolean']);
                 }
                 break;
             default:
-                throw new \LogicException('Unsupported built-in type: ' . $type);
+                throw new UnsupportedException('Unsupported built-in type: ' . $type);
                 break;
         }
         return $data;
@@ -138,7 +142,7 @@ class Transform
     {
         if (! $type->allowsNull() && $data === null) {
             // Field cannot have null
-            throw $this->to(FieldError::class, ['field' => $fieldName, 'details' => 'Field cannot have null value']);
+            throw $this->to(FieldError::class, ['field' => $fieldName, 'reason' => 'Field cannot have null value']);
         } elseif ($type->allowsNull() && $data === null) {
             // Field contains null, it's valid
             return $data;
@@ -154,13 +158,13 @@ class Transform
                 $class = new ReflectionClass($typeName);
                 if ($class->isSubclassOf(Collection::class)) {
                     if (!is_array($data)) {
-                        throw $this->to(FieldError::class, ['field' => $fieldName, 'details' => 'Field must be array']);
+                        throw $this->to(FieldError::class, ['field' => $fieldName, 'reason' => 'Field must be array']);
                     }
 
                     // Collections have type hinted constructor parameter like "string ...$items"
                     $constructorParams = $class->getConstructor()->getParameters();
                     if (count($constructorParams) !== 1) {
-                        throw new \LogicException('Collection with more than 1 argument is not supported');
+                        throw new UnsupportedException('Collection with more than 1 argument is not supported');
                     }
 
                     // Check types recursive
@@ -168,15 +172,14 @@ class Transform
                     $objects = [];
                     foreach ($data as $key => $item) {
                         // TODO: is it right? what with fields required and nullable?
-                        $this->checkType($itemType, $item, $fieldName . '.' . $key);
-                        $objects[] = $this->to($itemType->getName(), $item, $fieldName);
+                        $objects[] = $this->checkType($itemType, $item, $fieldName . '.' . $key);
                     }
                     $data = new $typeName(...$objects);
                 } else {
                     $data = $this->to($typeName, $data, $fieldName);
                 }
             } else {
-                throw new \LogicException('Unsupported nested type ' . $typeName);
+                throw new UnsupportedException('Unsupported nested type ' . $typeName);
             }
         }
 

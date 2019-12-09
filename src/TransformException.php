@@ -4,7 +4,12 @@ declare(strict_types=1);
 
 namespace Rutek\Dataclass;
 
-class TransformException extends \Exception
+use JsonSerializable;
+
+/**
+ * Data transform failure due to not matching defined type hints
+ */
+class TransformException extends \Exception implements JsonSerializable
 {
     public function __construct(FieldError ...$errors)
     {
@@ -20,5 +25,12 @@ class TransformException extends \Exception
     public function getErrors(): array
     {
         return $this->errors;
+    }
+
+    public function jsonSerialize()
+    {
+        return [
+            'errors' => $this->errors,
+        ];
     }
 }

@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace Rutek\DataclassTest;
 
 use PHPUnit\Framework\TestCase;
-use Rutek\Dataclass\Transform;
 use Rutek\Dataclass\TransformException;
 use Rutek\DataclassTest\Examples\Collections\DescribedTag;
 use Rutek\DataclassTest\Examples\Collections\DescribedTags;
 use Rutek\DataclassTest\Examples\Collections\Product;
 use Rutek\DataclassTest\Examples\Collections\Tags;
 use Rutek\DataclassTest\Traits\GetErrorTrait;
+
+use function Rutek\Dataclass\transform;
 
 class CollectionsTest extends TestCase
 {
@@ -27,8 +28,7 @@ class CollectionsTest extends TestCase
 
         $thrown = false;
         try {
-            $transformer = new Transform();
-            $transformer->to(Product::class, ['name' => 'Product name']);
+            transform(Product::class, ['name' => 'Product name']);
         } catch (TransformException $e) {
             $thrown = true;
             $this->assertEquals($expected, $e);
@@ -43,9 +43,8 @@ class CollectionsTest extends TestCase
         $expected->tags = new Tags();
         $expected->describedTags = new DescribedTags();
 
-        $transformer = new Transform();
         /** @var Product $obj */
-        $obj = $transformer->to(Product::class, [
+        $obj = transform(Product::class, [
             'name' => 'Product name',
             'tags' => [],
             'describedTags' => []
@@ -68,9 +67,8 @@ class CollectionsTest extends TestCase
         $expected->tags = new Tags('tag1', 'tag2');
         $expected->describedTags = new DescribedTags($firstTag, $secondTag);
 
-        $transformer = new Transform();
         /** @var Product $obj */
-        $obj = $transformer->to(Product::class, [
+        $obj = transform(Product::class, [
             'name' => 'Product name',
             'tags' => ['tag1', 'tag2'],
             'describedTags' => [

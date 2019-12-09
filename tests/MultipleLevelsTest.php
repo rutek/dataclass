@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace Rutek\DataclassTest;
 
 use PHPUnit\Framework\TestCase;
-use Rutek\Dataclass\Transform;
 use Rutek\Dataclass\TransformException;
 use Rutek\DataclassTest\Examples\MultipleLevels\FirstLevel;
 use Rutek\DataclassTest\Examples\MultipleLevels\SecondLevel;
 use Rutek\DataclassTest\Examples\MultipleLevels\ThirdLevel;
 use Rutek\DataclassTest\Traits\GetErrorTrait;
+
+use function Rutek\Dataclass\transform;
 
 class MultipleLevelsTest extends TestCase
 {
@@ -29,10 +30,8 @@ class MultipleLevelsTest extends TestCase
         $third->level2 = $second;
         $third->name = 'Level 3';
 
-
-        $transformer = new Transform();
         /** @var Product $obj */
-        $obj = $transformer->to(ThirdLevel::class, [
+        $obj = transform(ThirdLevel::class, [
             'name' => 'Level 3',
             'level2' => [
                 'name' => 'Level 2',
@@ -55,8 +54,7 @@ class MultipleLevelsTest extends TestCase
 
         $thrown = false;
         try {
-            $transformer = new Transform();
-            $transformer->to(ThirdLevel::class, [
+            transform(ThirdLevel::class, [
                 'name' => null, // ?string = null
                 'level2' => [
                     // missing: ?string $name (no default)

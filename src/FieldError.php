@@ -4,7 +4,12 @@ declare(strict_types=1);
 
 namespace Rutek\Dataclass;
 
-class FieldError extends \Exception
+use JsonSerializable;
+
+/**
+ * Description of error which occured during type checking of received data
+ */
+class FieldError extends \Exception implements JsonSerializable
 {
     public function __construct()
     {
@@ -12,5 +17,13 @@ class FieldError extends \Exception
     }
 
     public string $field;
-    public string $details;
+    public string $reason;
+
+    public function jsonSerialize()
+    {
+        return [
+            'field' => $this->field,
+            'reason' => $this->reason,
+        ];
+    }
 }

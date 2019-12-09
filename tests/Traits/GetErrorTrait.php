@@ -8,11 +8,11 @@ use Rutek\Dataclass\FieldError;
 
 trait GetErrorTrait
 {
-    protected function getError(string $field, string $details): FieldError
+    protected function getError(string $field, string $reason): FieldError
     {
         $error = new FieldError();
         $error->field = $field;
-        $error->details = $details;
+        $error->reason = $reason;
         return $error;
     }
 }
