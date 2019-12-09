@@ -23,7 +23,7 @@ class MyClass
 }
 ```
 
-As next step pass main class name and received data, for example from received JSON to `Transform::to` method:
+As next step pass main class name and received data, for example from received JSON to `transform` method:
 
 ```php
 $data = '{
