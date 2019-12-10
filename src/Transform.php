@@ -16,9 +16,17 @@ class Transform
      * @param array $data Data to map
      * @param string|null $fieldName Internal use only
      * @return mixed
+     * @throws TransformException
+     * @throws UnsupportedException
      */
     public function to(string $class, $data, ?string $fieldName = null)
     {
+        if ($data === null) {
+            throw new TransformException(
+                $this->to(FieldError::class, ['field' => 'root', 'reason' => 'Data could not be decoded'])
+            );
+        }
+
         $errors = [];
 
         // Validation of scalars to handle potential recursive calls nicely
