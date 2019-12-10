@@ -40,6 +40,16 @@ class Transform
         }
 
         $objReflection = new ReflectionClass($class);
+
+        // Direct creation of Collections
+        if ($objReflection->isSubclassOf(Collection::class)) {
+            try {
+                return $this->checkCollection($objReflection, $data, $fieldName ?? 'root');
+            } catch (FieldError $e) {
+                throw new TransformException($e);
+            }
+        }
+
         $properties = $objReflection->getProperties();
         $defaults = $objReflection->getDefaultProperties();
 
@@ -165,24 +175,7 @@ class Transform
             if (class_exists($typeName)) {
                 $class = new ReflectionClass($typeName);
                 if ($class->isSubclassOf(Collection::class)) {
-                    if (!is_array($data)) {
-                        throw $this->to(FieldError::class, ['field' => $fieldName, 'reason' => 'Field must be array']);
-                    }
-
-                    // Collections have type hinted constructor parameter like "string ...$items"
-                    $constructorParams = $class->getConstructor()->getParameters();
-                    if (count($constructorParams) !== 1) {
-                        throw new UnsupportedException('Collection with more than 1 argument is not supported');
-                    }
-
-                    // Check types recursive
-                    $itemType = $constructorParams[0]->getType();
-                    $objects = [];
-                    foreach ($data as $key => $item) {
-                        // TODO: is it right? what with fields required and nullable?
-                        $objects[] = $this->checkType($itemType, $item, $fieldName . '.' . $key);
-                    }
-                    $data = new $typeName(...$objects);
+                    $data = $this->checkCollection($class, $data, $fieldName);
                 } else {
                     $data = $this->to($typeName, $data, $fieldName);
                 }
@@ -192,5 +185,28 @@ class Transform
         }
 
         return $data;
+    }
+
+    protected function checkCollection(ReflectionClass $class, $data, string $fieldName)
+    {
+        if (!is_array($data)) {
+            throw $this->to(FieldError::class, ['field' => $fieldName, 'reason' => 'Field must be array']);
+        }
+
+        $typeName = $class->getName();
+
+        // Collections have type hinted constructor parameter like "string ...$items"
+        $constructorParams = $class->getConstructor()->getParameters();
+        if (count($constructorParams) !== 1) {
+            throw new UnsupportedException('Collection with more than 1 argument is not supported');
+        }
+
+        // Check types recursive
+        $itemType = $constructorParams[0]->getType();
+        $objects = [];
+        foreach ($data as $key => $item) {
+            $objects[] = $this->checkType($itemType, $item, $fieldName . '.' . $key);
+        }
+        return new $typeName(...$objects);
     }
 }

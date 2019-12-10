@@ -137,6 +137,12 @@ Library will check if provided values match type-hinting of constructor.
 
 There is no possiblity to check minimum and maxiumum items but there may be such feature in next versions.
 
+Please note that you can also use Collection as base class which you want to transform, for example:
+
+```php
+$tags = transform(Tags::class, ['tag1', 'tag2']);
+```
+
 ## Exceptions
 
 ## `TransformException` - data does not match your schema
