@@ -53,6 +53,8 @@ object(MyClass) {
 }
 ```
 
+You don't have to worry about passing `null` frmo `json_decode`, it will throw `TransformException` for `root` field if it's detected.
+
 You don't have to worry about missing fields and invalid types as library detects all type-hinted requirements and throws `TransformException` with errors (ready to be served as response) pointing to exact fields with simple reason message, for example:
 
 ```php
