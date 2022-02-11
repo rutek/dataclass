@@ -11,6 +11,9 @@ use JsonSerializable;
  */
 class TransformException extends \Exception implements JsonSerializable
 {
+    /** @var FieldError[] */
+    private $errors;
+
     public function __construct(FieldError ...$errors)
     {
         $this->errors = $errors;

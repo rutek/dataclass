@@ -7,6 +7,7 @@ namespace Rutek\Dataclass;
 use ArrayIterator;
 use IteratorAggregate;
 use JsonSerializable;
+use Traversable;
 
 /**
  * Base class which should be used for creating type-hinted arrays
@@ -15,12 +16,16 @@ use JsonSerializable;
  * nested items, for example:
  * __construct(string ...$items)
  * and assign them to $items field.
+ * @template T
+ * @implements IteratorAggregate<int, T>
  */
 abstract class Collection implements IteratorAggregate, JsonSerializable
 {
+    /** @var T[] */
     protected $items = [];
 
-    public function getIterator()
+    /** @return Traversable<int, T> */
+    public function getIterator(): \Traversable
     {
         return new ArrayIterator($this->items);
     }
