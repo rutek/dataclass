@@ -176,6 +176,14 @@ Library does not cover all scenarios as you can define type hints which would no
 
 ## Unsupported (yet?)
 
+### Intersection and union types
+
+PHP 8.0 [union types](https://wiki.php.net/rfc/union_types_v2) and PHP 8.1 [intersection types](https://wiki.php.net/rfc/pure-intersection-types) are unsupported right now.
+
+### Enums
+
+Native PHP 8.1 [enums](https://www.php.net/manual/en/language.types.enumerations.php) are unsupported right now.
+
 ### Private and protected properties
 
 All type-hinted fields must be public as for now. Implementing such feature is questionable as you would have to create getters for such properties which is unwanted overhead. Library is meant to create possiblity to define internal schemas for data received from remote systems (APIs, queues/bus messages, browsers).

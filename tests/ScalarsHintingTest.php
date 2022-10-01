@@ -15,9 +15,9 @@ class ScalarsHintingTest extends TestCase
 {
     use GetErrorTrait;
 
-    public function testCreationWithNullsAllowed()
+    public function testCreationWithNullsAllowed(): void
     {
-        /** @var TestClass $obj */
+        /** @var ScalarsHinting $obj */
         $obj = transform(ScalarsHinting::class, [
             'number' => 1,
             'numberAllowNull' => null,
@@ -47,9 +47,9 @@ class ScalarsHintingTest extends TestCase
         $this->assertEquals($expected, $obj);
     }
 
-    public function testCreationWithOptionalFields()
+    public function testCreationWithOptionalFields(): void
     {
-        /** @var TestClass $obj */
+        /** @var ScalarsHinting $obj */
         $obj = transform(ScalarsHinting::class, [
             'number' => 1,
             'optionalNumber' => 2,
@@ -82,7 +82,7 @@ class ScalarsHintingTest extends TestCase
         $this->assertEquals($expected, $obj);
     }
 
-    public function testRequiredData()
+    public function testRequiredData(): void
     {
         // Also fields with type-hinting "?scalar" must be defined as they
         // have no default value

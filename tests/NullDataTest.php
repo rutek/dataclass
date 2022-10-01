@@ -13,7 +13,7 @@ use function Rutek\Dataclass\transform;
 
 class NullDataTest extends TestCase
 {
-    public function testNullFromJsonDecode()
+    public function testNullFromJsonDecode(): void
     {
         $expected = new TransformException(
             transform(FieldError::class, ['field' => 'root', 'reason' => 'Data could not be decoded'])

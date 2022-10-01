@@ -13,7 +13,7 @@ use function Rutek\Dataclass\transform;
 
 class DirectCollectionCreationTest extends TestCase
 {
-    public function testCollectionFromStringArray()
+    public function testCollectionFromStringArray(): void
     {
         $expected = new Tags('tag1', 'tag2');
         $data = [
@@ -25,7 +25,8 @@ class DirectCollectionCreationTest extends TestCase
             transform(Tags::class, $data)
         );
     }
-    public function testCollectionFromObjectArray()
+
+    public function testCollectionFromObjectArray(): void
     {
         $expected = new DescribedTags(
             transform(DescribedTag::class, ['tag' => 'tag1', 'description' => 'description']),
