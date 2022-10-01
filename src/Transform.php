@@ -25,7 +25,15 @@ class Transform
     {
         if ($data === null) {
             throw new TransformException(
-                $this->to(FieldError::class, ['field' => 'root', 'reason' => 'Data could not be decoded'])
+                $this->to(FieldError::class, ['field' => $fieldName ?? 'root', 'reason' => 'Data could not be decoded'])
+            );
+        }
+        if (!is_array($data)) {
+            throw new TransformException(
+                $this->to(FieldError::class, [
+                    'field' => $fieldName ?? 'root',
+                    'reason' => 'Field value must be an array'
+                ])
             );
         }
 
@@ -66,13 +74,6 @@ class Transform
                     'Param ' . $name . ' does not appear to have simple typing, unions and intersections '
                     . 'are not supported'
                 );
-            }
-            if (!is_array($data)) {
-                $errors[] = $this->to(FieldError::class, [
-                    'field' => ($fieldName !== null ? $fieldName . '.' : '') . $name,
-                    'reason' => 'Field value must be an array'
-                ]);
-                continue;
             }
 
             if (!array_key_exists($name, $data)) {

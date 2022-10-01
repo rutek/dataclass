@@ -25,6 +25,7 @@ class DirectCollectionCreationTest extends TestCase
             transform(Tags::class, $data)
         );
     }
+
     public function testCollectionFromObjectArray(): void
     {
         $expected = new DescribedTags(

@@ -69,4 +69,24 @@ class MultipleLevelsTest extends TestCase
         }
         $this->assertTrue($thrown);
     }
+
+    public function testReceivesScalarWhenArrayIsExpected(): void
+    {
+        $errors = [
+            $this->getError('level2', 'Field value must be an array'),
+        ];
+        $expected = new TransformException(...$errors);
+
+        $thrown = false;
+        try {
+            transform(ThirdLevel::class, [
+                'name' => null, // ?string = null
+                'level2' => 'test', // should be an array to map to object
+            ]);
+        } catch (TransformException $e) {
+            $thrown = true;
+            $this->assertEquals($expected, $e);
+        }
+        $this->assertTrue($thrown);
+    }
 }
