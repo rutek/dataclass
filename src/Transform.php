@@ -6,16 +6,18 @@ namespace Rutek\Dataclass;
 
 use ReflectionClass;
 use ReflectionType;
+use ReflectionNamedType;
 
 class Transform
 {
     /**
-     * Transform raw array to structure desribed by type-hints from given class
+     * Transform raw array to structure described by type-hints from given class
      *
-     * @param string $class Class to be filled in with data
-     * @param array $data Data to map
+     * @template T of object
+     * @param class-string<T> $class Class to be filled in with data
+     * @param mixed $data Data to map
      * @param string|null $fieldName Internal use only
-     * @return mixed
+     * @return T
      * @throws TransformException
      * @throws UnsupportedException
      */
@@ -29,21 +31,13 @@ class Transform
 
         $errors = [];
 
-        // Validation of scalars to handle potential recursive calls nicely
-        if (in_array($class, ['string', 'int', 'float', 'bool'])) {
-            try {
-                $data = $this->checkScalar($class, $data, 'var');
-            } catch (FieldError $e) {
-                throw new TransformException($e);
-            }
-            return $data;
-        }
-
         $objReflection = new ReflectionClass($class);
 
         // Direct creation of Collections
         if ($objReflection->isSubclassOf(Collection::class)) {
+            /** @var ReflectionClass<T of Collection> $objReflection */
             try {
+                /** @var T */
                 return $this->checkCollection($objReflection, $data, $fieldName ?? 'root');
             } catch (FieldError $e) {
                 throw new TransformException($e);
@@ -61,8 +55,23 @@ class Transform
             $name = $property->getName();
 
             // We ignore untyped properties but pass data "as they are"
-            if (! $property->hasType()) {
+            $propertyType = $property->getType();
+            if ($propertyType === null) {
                 $finalData[$name] = $data;
+                continue;
+            }
+            if (! ($propertyType instanceof ReflectionNamedType)) {
+                // TODO: Add support for intersections and unions
+                throw new UnsupportedException(
+                    'Param ' . $name . ' does not appear to have simple typing, unions and intersections '
+                    . 'are not supported'
+                );
+            }
+            if (!is_array($data)) {
+                $errors[] = $this->to(FieldError::class, [
+                    'field' => ($fieldName !== null ? $fieldName . '.' : '') . $name,
+                    'reason' => 'Field value must be an array'
+                ]);
                 continue;
             }
 
@@ -82,7 +91,7 @@ class Transform
 
             try {
                 $finalData[$name] = $this->checkType(
-                    $property->getType(),
+                    $propertyType,
                     $data[$name],
                     ($fieldName !== null ? $fieldName . '.' : '') . $name
                 );
@@ -142,21 +151,20 @@ class Transform
                 break;
             default:
                 throw new UnsupportedException('Unsupported built-in type: ' . $type);
-                break;
         }
         return $data;
     }
 
     /**
-     * Check if given type described by ReflectionType is valid and return modified value
+     * Check if given type described by ReflectionNamedType is valid and return modified value
      * for recursive calls support
      *
-     * @param ReflectionType $type
+     * @param ReflectionNamedType $type
      * @param mixed $data
      * @param string $fieldName
      * @return mixed
      */
-    private function checkType(ReflectionType $type, $data, string $fieldName)
+    private function checkType(ReflectionNamedType $type, $data, string $fieldName)
     {
         if (! $type->allowsNull() && $data === null) {
             // Field cannot have null
@@ -187,6 +195,15 @@ class Transform
         return $data;
     }
 
+    /**
+     * @template T of Collection
+     * @param ReflectionClass<T> $class
+     * @param mixed $data
+     * @param string $fieldName
+     * @return T
+     * @throws UnsupportedException
+     * @throws FieldError
+     */
     protected function checkCollection(ReflectionClass $class, $data, string $fieldName)
     {
         if (!is_array($data)) {
@@ -196,13 +213,27 @@ class Transform
         $typeName = $class->getName();
 
         // Collections have type hinted constructor parameter like "string ...$items"
-        $constructorParams = $class->getConstructor()->getParameters();
+        $constructor = $class->getConstructor();
+        if ($constructor === null) {
+            throw new UnsupportedException('Collection class does not have constructor');
+        }
+        $constructorParams = $constructor->getParameters();
         if (count($constructorParams) !== 1) {
             throw new UnsupportedException('Collection with more than 1 argument is not supported');
         }
 
         // Check types recursive
         $itemType = $constructorParams[0]->getType();
+        if ($itemType === null) {
+            throw new UnsupportedException('Collection constructor param does not have type hint');
+        }
+        if (! ($itemType instanceof ReflectionNamedType)) {
+            // TODO: Add support for intersections and unions
+            throw new UnsupportedException(
+                'Collection constructor param does not appear to have simple typing, '
+                . 'unions and intersections are not supported'
+            );
+        }
         $objects = [];
         foreach ($data as $key => $item) {
             $objects[] = $this->checkType($itemType, $item, $fieldName . '.' . $key);

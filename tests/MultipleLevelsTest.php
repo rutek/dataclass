@@ -17,7 +17,7 @@ class MultipleLevelsTest extends TestCase
 {
     use GetErrorTrait;
 
-    public function testEmptyCollections()
+    public function testEmptyCollections(): void
     {
         $first = new FirstLevel;
         $first->name = 'Level 1';
@@ -30,7 +30,7 @@ class MultipleLevelsTest extends TestCase
         $third->level2 = $second;
         $third->name = 'Level 3';
 
-        /** @var Product $obj */
+        /** @var ThirdLevel $obj */
         $obj = transform(ThirdLevel::class, [
             'name' => 'Level 3',
             'level2' => [
@@ -44,7 +44,7 @@ class MultipleLevelsTest extends TestCase
         $this->assertEquals($third, $obj);
     }
 
-    public function testFieldNamesInErrors()
+    public function testFieldNamesInErrors(): void
     {
         $errors = [
             $this->getError('level2.name', 'Field must have value'),

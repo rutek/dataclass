@@ -18,7 +18,7 @@ class CollectionsTest extends TestCase
 {
     use GetErrorTrait;
 
-    public function testMissingCollectionsValues()
+    public function testMissingCollectionsValues(): void
     {
         $errors = [
             $this->getError('tags', 'Field must have value'),
@@ -36,7 +36,7 @@ class CollectionsTest extends TestCase
         $this->assertTrue($thrown);
     }
 
-    public function testEmptyCollections()
+    public function testEmptyCollections(): void
     {
         $expected = new Product;
         $expected->name = 'Product name';
@@ -52,7 +52,7 @@ class CollectionsTest extends TestCase
         $this->assertEquals($expected, $obj);
     }
 
-    public function testFilledCollections()
+    public function testFilledCollections(): void
     {
         $firstTag = new DescribedTag;
         $firstTag->tag = 'tag1';
