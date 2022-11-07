@@ -65,7 +65,7 @@ class Transform
             // We ignore untyped properties but pass data "as they are"
             $propertyType = $property->getType();
             if ($propertyType === null) {
-                $finalData[$name] = $data;
+                $finalData[$name] = $data[$name] ?? null;
                 continue;
             }
             if (! ($propertyType instanceof ReflectionNamedType)) {
