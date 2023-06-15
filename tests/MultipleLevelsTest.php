@@ -19,14 +19,14 @@ class MultipleLevelsTest extends TestCase
 
     public function testEmptyCollections(): void
     {
-        $first = new FirstLevel;
+        $first = new FirstLevel();
         $first->name = 'Level 1';
 
-        $second = new SecondLevel;
+        $second = new SecondLevel();
         $second->level1 = $first;
         $second->name = 'Level 2';
 
-        $third = new ThirdLevel;
+        $third = new ThirdLevel();
         $third->level2 = $second;
         $third->name = 'Level 3';
 

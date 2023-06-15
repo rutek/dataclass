@@ -38,7 +38,7 @@ class CollectionsTest extends TestCase
 
     public function testEmptyCollections(): void
     {
-        $expected = new Product;
+        $expected = new Product();
         $expected->name = 'Product name';
         $expected->tags = new Tags();
         $expected->describedTags = new DescribedTags();
@@ -54,15 +54,15 @@ class CollectionsTest extends TestCase
 
     public function testFilledCollections(): void
     {
-        $firstTag = new DescribedTag;
+        $firstTag = new DescribedTag();
         $firstTag->tag = 'tag1';
         $firstTag->description = 'tag1 description';
 
-        $secondTag = new DescribedTag;
+        $secondTag = new DescribedTag();
         $secondTag->tag = 'tag2';
         $secondTag->description = 'tag2 description';
 
-        $expected = new Product;
+        $expected = new Product();
         $expected->name = 'Product name';
         $expected->tags = new Tags('tag1', 'tag2');
         $expected->describedTags = new DescribedTags($firstTag, $secondTag);

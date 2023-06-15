@@ -107,7 +107,33 @@ class Transform
             throw new TransformException(...$errors);
         }
 
-        $obj = new $class;
+
+        // We support objects that require filling in required object properties through constructor
+        $constructor = $objReflection->getConstructor();
+        if ($constructor !== null) {
+            $constructorParams = $constructor->getParameters();
+            if (count($constructorParams) > 0) {
+                $constructorArgs = [];
+                foreach ($constructorParams as $param) {
+                    $paramName = $param->getName();
+                    if (!array_key_exists($paramName, $finalData)) {
+                        throw new TransformException(
+                            $this->to(FieldError::class, [
+                                'field' => ($fieldName !== null ? $fieldName . '.' : '') . $paramName,
+                                'reason' => 'Field must have value'
+                            ])
+                        );
+                    }
+                    $constructorArgs[] = $finalData[$paramName];
+                }
+                $obj = $objReflection->newInstanceArgs($constructorArgs);
+            } else {
+                $obj = $objReflection->newInstance();
+            }
+        } else {
+            $obj = new $class();
+        }
+
         foreach ($finalData as $field => $value) {
             $obj->$field = $value;
         }

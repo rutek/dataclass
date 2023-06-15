@@ -27,5 +27,12 @@
         "psr-4": {
             "Rutek\\DataclassTest\\": "tests/"
         }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "lint": [
+            "phpcs --standard=PSR12 src/ tests/",
+            "phpstan analyse --level=max src/ tests/"
+        ]
     }
 }

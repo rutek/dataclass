@@ -89,6 +89,28 @@ $transformer = new Transform();
 $object = $transformer->to(MyClass::class, json_decode($data, true));
 ```
 
+### Constructors
+
+If you need to use constructor with type-hinted arguments you can do it, but in the limited way. The library only
+supports filling in constructor arguments with values from the payload. It means that constructor must use
+the same types and variable names as the class properties. For example:
+
+```php
+class MyClass
+{
+    public float $number;
+    public ?int $numberTwo = null;
+
+    public function __construct(float $number)
+    {
+        $this->number = $number;
+    }
+}
+```
+
+Using different name or type for the constructor argument won't work. The goal is to support enforcing
+developer to fill in the properties.
+
 ### More examples
 
 Please check out [docs/ directory](docs/) for more examples.
