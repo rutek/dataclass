@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace Rutek\Dataclass;
 
 use ReflectionClass;
+use ReflectionException;
 use ReflectionType;
 use ReflectionNamedType;
+use Rutek\Dataclass\UnsupportedException\ConstructorParamAndPropertyTypeMismatchException;
+use Rutek\Dataclass\UnsupportedException\MissingPropertyForConstructorParameterException;
 
 class Transform
 {
@@ -107,7 +110,6 @@ class Transform
             throw new TransformException(...$errors);
         }
 
-
         // We support objects that require filling in required object properties through constructor
         $constructor = $objReflection->getConstructor();
         if ($constructor !== null) {
@@ -116,14 +118,37 @@ class Transform
                 $constructorArgs = [];
                 foreach ($constructorParams as $param) {
                     $paramName = $param->getName();
+                    // If there is no data for constructor parameter, it means that there is no public property
+                    // that uses the same name. It's unsupported.
                     if (!array_key_exists($paramName, $finalData)) {
-                        throw new TransformException(
-                            $this->to(FieldError::class, [
-                                'field' => ($fieldName !== null ? $fieldName . '.' : '') . $paramName,
-                                'reason' => 'Field must have value'
-                            ])
-                        );
+                        throw new MissingPropertyForConstructorParameterException($paramName);
                     }
+                    // Find property using the same name
+                    try {
+                        $property = $objReflection->getProperty($paramName);
+                    } catch (ReflectionException $e) {
+                        // Property does not exist, it's unsupported
+                        throw new MissingPropertyForConstructorParameterException($paramName);
+                    }
+                    // Check if types between property and constructor parameter match
+                    $propertyType = $property->getType();
+                    $paramType = $param->getType();
+                    // Check if both types are not defined or both are defined
+                    if (
+                        ($propertyType !== null && $paramType === null)
+                        || ($propertyType === null && $paramType !== null)
+                    ) {
+                        throw new ConstructorParamAndPropertyTypeMismatchException($paramName);
+                    }
+                    // Check if types match (if both are defined)
+                    if (
+                        $propertyType instanceof ReflectionNamedType
+                        && $paramType instanceof ReflectionNamedType
+                        && $propertyType->getName() !== $paramType->getName()
+                    ) {
+                        throw new ConstructorParamAndPropertyTypeMismatchException($paramName);
+                    }
+                    // TODO: Add support for intersections and unions (they are not a ReflectionNamedType)
                     $constructorArgs[] = $finalData[$paramName];
                 }
                 $obj = $objReflection->newInstanceArgs($constructorArgs);

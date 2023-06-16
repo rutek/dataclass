@@ -6,9 +6,6 @@ namespace Rutek\DataclassTest\Examples;
 
 class ObjectWithConstructor extends ScalarsHinting
 {
-    /**
-     * It's planned to not fill in any of properties that are required (have no default values).
-     */
     public function __construct(int $number, string $text, float $decimalNumber, bool $logicValue)
     {
         $this->number = $number;

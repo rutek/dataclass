@@ -111,6 +111,10 @@ class MyClass
 Using different name or type for the constructor argument won't work. The goal is to support enforcing
 developer to fill in the properties.
 
+Any constructor that contains any other parameter than the properties will throw `UnsupportedException`. Parameters
+must have the same type as properties. Order is irrelevant. If it's needed, only some subset of properties can exist
+in the constructor.
+
 ### More examples
 
 Please check out [docs/ directory](docs/) for more examples.
