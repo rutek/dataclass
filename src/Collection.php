@@ -30,7 +30,7 @@ abstract class Collection implements IteratorAggregate, JsonSerializable
         return new ArrayIterator($this->items);
     }
 
-    public function jsonSerialize(): mixed
+    public function jsonSerialize()
     {
         return $this->items;
     }

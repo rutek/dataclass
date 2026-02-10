@@ -19,7 +19,7 @@ class FieldError extends \Exception implements JsonSerializable
     public string $field;
     public string $reason;
 
-    public function jsonSerialize(): mixed
+    public function jsonSerialize()
     {
         return [
             'field' => $this->field,
