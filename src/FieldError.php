@@ -19,6 +19,7 @@ class FieldError extends \Exception implements JsonSerializable
     public string $field;
     public string $reason;
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return [
