@@ -30,6 +30,7 @@ class TransformException extends \Exception implements JsonSerializable
         return $this->errors;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return [
